@@ -27,7 +27,7 @@ import subprocess
 tokens = []
 cleaned = []
 checker = []
-webhook_url = "%WEBHOOK_URL%"
+webhook_url = "%webhook_url%"
 
 userprofile = os.getenv('USERPROFILE')
 
